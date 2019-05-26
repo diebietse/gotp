@@ -1,21 +1,25 @@
 package gotp
 
-// HMAC-based OTP counters.
+// HOTP is the HMAC-based OTP counters.
 type HOTP struct {
 	OTP
 }
 
+// NewHOTP returns an HOTP struct.
+// If hasher is set to nil, the hasher defaults to SHA1.
 func NewHOTP(secret string, digits int, hasher *Hasher, format Format) *HOTP {
 	otp := NewOTP(secret, digits, hasher, format)
 	return &HOTP{OTP: otp}
 
 }
 
+// NewDefaultHOTP returns an HOTP struct with the given secret and set defaults.
+// The digit count is 6, hasher SHA1 and format is decimal output.
 func NewDefaultHOTP(secret string) *HOTP {
 	return NewHOTP(secret, 6, nil, FormatDec)
 }
 
-// Generates the OTP for the given count.
+// At generates the OTP for the given count.
 func (h *HOTP) At(count int) string {
 	return h.generateOTP(count)
 }
@@ -32,7 +36,7 @@ func (h *HOTP) Verify(otp string, count int) bool {
 }
 
 /*
-Returns the provisioning URI for the OTP.
+ProvisioningURI returns the provisioning URI for the OTP.
 This can then be encoded in a QR Code and used to provision an OTP app like Google Authenticator.
 
 See also:
@@ -45,9 +49,9 @@ params:
 
 returns: provisioning URI
 */
-func (h *HOTP) ProvisioningUri(accountName, issuerName string, initialCount int) string {
-	return BuildUri(
-		OtpTypeHotp,
+func (h *HOTP) ProvisioningURI(accountName, issuerName string, initialCount int) string {
+	return BuildURI(
+		OTPTypeHOTP,
 		h.secret,
 		accountName,
 		issuerName,

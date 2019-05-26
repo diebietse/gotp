@@ -5,7 +5,7 @@ import (
 )
 
 func TestBuildUri(t *testing.T) {
-	s := BuildUri(
+	s := BuildURI(
 		"totp",
 		"4S62BZNFXXSZLCRO",
 		"xlzd",

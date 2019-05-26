@@ -67,7 +67,11 @@ func (o *OTP) generateOTP(input int) string {
 		panic("input must be positive integer")
 	}
 	hasher := hmac.New(o.hasher.Digest, o.byteSecret())
-	hasher.Write(Itob(input))
+	if _, err := hasher.Write(Itob(input)); err != nil {
+		// A write to hasher should never fail. We can just as well panic as something else major is at fault.
+		panic(err)
+	}
+
 	hmacHash := hasher.Sum(nil)
 
 	offset := int(hmacHash[len(hmacHash)-1] & 0xf)
