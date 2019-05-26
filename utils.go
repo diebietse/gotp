@@ -9,12 +9,12 @@ import (
 )
 
 const (
-	OtpTypeTotp = "totp"
-	OtpTypeHotp = "hotp"
+	OTPTypeTOTP = "totp"
+	OTPTypeHOTP = "hotp"
 )
 
 /*
-Returns the provisioning URI for the OTP; works for either TOTP or HOTP.
+BuildURI returns the provisioning URI for the OTP; works for either TOTP or HOTP.
 This can then be encoded in a QR Code and used to provision the Google Authenticator app.
 For module-internal use.
 See also:
@@ -32,14 +32,14 @@ params:
 
 returns: provisioning uri
 */
-func BuildUri(otpType, secret, accountName, issuerName, algorithm string, initialCount, digits, period int) string {
-	if otpType != OtpTypeHotp && otpType != OtpTypeTotp {
+func BuildURI(otpType, secret, accountName, issuerName, algorithm string, initialCount, digits, period int) string {
+	if otpType != OTPTypeHOTP && otpType != OTPTypeTOTP {
 		panic("otp type error, got " + otpType)
 	}
 
 	urlParams := make([]string, 0)
 	urlParams = append(urlParams, "secret="+secret)
-	if otpType == OtpTypeHotp {
+	if otpType == OTPTypeHOTP {
 		urlParams = append(urlParams, fmt.Sprintf("counter=%d", initialCount))
 	}
 	label := url.QueryEscape(accountName)

@@ -31,8 +31,20 @@ func TestTOTP_Verify(t *testing.T) {
 
 func TestTOTP_ProvisioningUri(t *testing.T) {
 	expect := "otpauth://totp/github:xlzd?secret=4S62BZNFXXSZLCRO&issuer=github"
-	uri := totp.ProvisioningUri("xlzd", "github")
+	uri := totp.ProvisioningURI("xlzd", "github")
 	if expect != uri {
 		t.Error("ProvisioningUri error")
+	}
+}
+
+func TestTOTP_NowWithExpirationHex(t *testing.T) {
+	otpHex := NewTOTP("4S62BZNFXXSZLCRO", 6, 30, nil, FormatHex)
+	otp, exp := otpHex.NowWithExpiration()
+	cts := currentTimestamp()
+	if otp != otpHex.Now() {
+		t.Error("TOTP hex generate otp error!")
+	}
+	if totp.At(cts+30) != totp.At(int(exp)) {
+		t.Error("TOTP hex expiration otp error!")
 	}
 }

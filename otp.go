@@ -16,22 +16,45 @@ type Hasher struct {
 }
 
 type OTP struct {
-	secret string  // secret in base32 format
-	digits int     // number of integers in the OTP. Some apps expect this to be 6 digits, others support more.
-	hasher *Hasher // digest function to use in the HMAC (expected to be sha1)
+	secret     string  // secret in base32 format
+	digits     int     // number of integers in the OTP. Some apps expect this to be 6 digits, others support more.
+	hasher     *Hasher // digest function to use in the HMAC (expected to be sha1)
+	formatting string  // Saves the format an OTP is generated with
 }
 
-func NewOTP(secret string, digits int, hasher *Hasher) OTP {
+// Format sets the output format of the OTP
+type Format int
+
+// Invalid format will cause a panic
+const (
+	Unknown Format = iota
+	FormatDec
+	FormatHex
+)
+
+func NewOTP(secret string, digits int, hasher *Hasher, format Format) OTP {
 	if hasher == nil {
 		hasher = &Hasher{
 			HashName: "sha1",
 			Digest:   sha1.New,
 		}
 	}
+
+	var formatting string
+	switch format {
+	case FormatDec:
+		formatting = fmt.Sprintf("%%0%dd", digits)
+	case FormatHex:
+		formatting = fmt.Sprintf("%%0%dx", digits)
+	default:
+		panic(fmt.Errorf("unknown output format selected: %v", format))
+	}
+
 	return OTP{
-		secret: secret,
-		digits: digits,
-		hasher: hasher,
+		secret:     secret,
+		digits:     digits,
+		hasher:     hasher,
+		formatting: formatting,
 	}
 }
 
@@ -44,7 +67,11 @@ func (o *OTP) generateOTP(input int) string {
 		panic("input must be positive integer")
 	}
 	hasher := hmac.New(o.hasher.Digest, o.byteSecret())
-	hasher.Write(Itob(input))
+	if _, err := hasher.Write(Itob(input)); err != nil {
+		// A write to hasher should never fail. We can just as well panic as something else major is at fault.
+		panic(err)
+	}
+
 	hmacHash := hasher.Sum(nil)
 
 	offset := int(hmacHash[len(hmacHash)-1] & 0xf)
@@ -54,7 +81,7 @@ func (o *OTP) generateOTP(input int) string {
 		(int(hmacHash[offset+3]) & 0xff)
 
 	code = code % int(math.Pow10(o.digits))
-	return fmt.Sprintf(fmt.Sprintf("%%0%dd", o.digits), code)
+	return fmt.Sprintf(o.formatting, code)
 }
 
 func (o *OTP) byteSecret() []byte {
