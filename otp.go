@@ -20,6 +20,7 @@ type OTP struct {
 	digits     int     // number of integers in the OTP. Some apps expect this to be 6 digits, others support more.
 	hasher     *Hasher // digest function to use in the HMAC (expected to be sha1)
 	formatting string  // Saves the format an OTP is generated with
+	format     Format
 }
 
 // Format sets the output format of the OTP
@@ -55,6 +56,7 @@ func NewOTP(secret string, digits int, hasher *Hasher, format Format) OTP {
 		digits:     digits,
 		hasher:     hasher,
 		formatting: formatting,
+		format:     format,
 	}
 }
 
@@ -80,7 +82,9 @@ func (o *OTP) generateOTP(input int) string {
 		((int(hmacHash[offset+2] & 0xff)) << 8) |
 		(int(hmacHash[offset+3]) & 0xff)
 
-	code = code % int(math.Pow10(o.digits))
+	if o.format == FormatDec {
+		code = code % int(math.Pow10(o.digits))
+	}
 	return fmt.Sprintf(o.formatting, code)
 }
 
