@@ -26,3 +26,11 @@ func TestHOTP_Hex(t *testing.T) {
 		t.Errorf("HOTP generate otp error: %v", otp)
 	}
 }
+
+func TestHOTP_HexFive(t *testing.T) {
+	otpHex := NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", 5, nil, FormatHex)
+	otp := otpHex.At(0)
+	if "07a45" != otp {
+		t.Errorf("HOTP generate otp error: %v", otp)
+	}
+}

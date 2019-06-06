@@ -82,9 +82,13 @@ func (o *OTP) generateOTP(input int) string {
 		((int(hmacHash[offset+2] & 0xff)) << 8) |
 		(int(hmacHash[offset+3]) & 0xff)
 
-	if o.format == FormatDec {
+	switch o.format {
+	case FormatDec:
 		code = code % int(math.Pow10(o.digits))
+	case FormatHex:
+		code = code >> (32 - 4*uint(o.digits))
 	}
+
 	return fmt.Sprintf(o.formatting, code)
 }
 
