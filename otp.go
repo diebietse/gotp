@@ -16,7 +16,7 @@ type Hasher struct {
 }
 
 type OTP struct {
-	secret     string  // secret in base32 format
+	secret     []byte  // secret in binary format
 	digits     int     // number of integers in the OTP. Some apps expect this to be 6 digits, others support more.
 	hasher     *Hasher // digest function to use in the HMAC (expected to be sha1)
 	formatting string  // Saves the format an OTP is generated with
@@ -33,7 +33,18 @@ const (
 	FormatHex
 )
 
-func NewOTP(secret string, digits int, hasher *Hasher, format Format) OTP {
+// MaxOTPLength set the character length limit of the library
+const MaxOTPLength = 8
+
+func newOTP(secret string, digits int, hasher *Hasher, format Format) (*OTP, error) {
+	if digits < 0 || digits > MaxOTPLength {
+		return nil, fmt.Errorf("OTP length must be between 0 and %d characters", MaxOTPLength)
+	}
+
+	secretBytes, err := byteSecret(secret)
+	if err != nil {
+		return nil, fmt.Errorf("could not decode base32 encoded secret: %v", err)
+	}
 	if hasher == nil {
 		hasher = &Hasher{
 			HashName: "sha1",
@@ -51,13 +62,14 @@ func NewOTP(secret string, digits int, hasher *Hasher, format Format) OTP {
 		panic(fmt.Errorf("unknown output format selected: %v", format))
 	}
 
-	return OTP{
-		secret:     secret,
+	otp := &OTP{
+		secret:     secretBytes,
 		digits:     digits,
 		hasher:     hasher,
 		formatting: formatting,
 		format:     format,
 	}
+	return otp, nil
 }
 
 /*
@@ -65,10 +77,7 @@ params
     input: the HMAC counter value to use as the OTP input. Usually either the counter, or the computed integer based on the Unix timestamp
 */
 func (o *OTP) generateOTP(input int) string {
-	if input < 0 {
-		panic("input must be positive integer")
-	}
-	hasher := hmac.New(o.hasher.Digest, o.byteSecret())
+	hasher := hmac.New(o.hasher.Digest, o.secret)
 	if _, err := hasher.Write(Itob(input)); err != nil {
 		// A write to hasher should never fail. We can just as well panic as something else major is at fault.
 		panic(err)
@@ -92,14 +101,18 @@ func (o *OTP) generateOTP(input int) string {
 	return fmt.Sprintf(o.formatting, code)
 }
 
-func (o *OTP) byteSecret() []byte {
-	missingPadding := len(o.secret) % 8
+func byteSecret(secret string) ([]byte, error) {
+	missingPadding := len(secret) % 8
 	if missingPadding != 0 {
-		o.secret = o.secret + strings.Repeat("=", 8-missingPadding)
+		secret = secret + strings.Repeat("=", 8-missingPadding)
 	}
-	bytes, err := base32.StdEncoding.DecodeString(o.secret)
+	bytes, err := base32.StdEncoding.DecodeString(secret)
 	if err != nil {
-		panic("decode secret failed")
+		return nil, err
 	}
-	return bytes
+	return bytes, nil
+}
+
+func encodeSecret(secret []byte) string {
+	return base32.StdEncoding.EncodeToString(secret)
 }

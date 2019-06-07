@@ -13,7 +13,10 @@ func main() {
 }
 
 func defaultTOTPUsage() {
-	otp := gotp.NewDefaultTOTP("4S62BZNFXXSZLCRO")
+	otp, err := gotp.NewDefaultTOTP("4S62BZNFXXSZLCRO")
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println("current one-time password is:", otp.Now())
 	fmt.Println("one-time password of timestamp 0 is:", otp.At(0))
@@ -23,7 +26,10 @@ func defaultTOTPUsage() {
 }
 
 func defaultHOTPUsage() {
-	otp := gotp.NewDefaultHOTP("4S62BZNFXXSZLCRO")
+	otp, err := gotp.NewDefaultHOTP("4S62BZNFXXSZLCRO")
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println("one-time password of counter 0 is:", otp.At(0))
 	fmt.Println(otp.ProvisioningURI("demoAccountName", "issuerName", 1))
