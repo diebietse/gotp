@@ -4,20 +4,23 @@ import "time"
 
 // TOTP is the time-based OTP counters.
 type TOTP struct {
-	OTP
+	*OTP
 	interval int
 }
 
 // NewTOTP returns an TOTP struct.
 // If hasher is set to nil, the hasher defaults to SHA1.
-func NewTOTP(secret string, digits, interval int, hasher *Hasher, format Format) *TOTP {
-	otp := NewOTP(secret, digits, hasher, format)
-	return &TOTP{OTP: otp, interval: interval}
+func NewTOTP(secret string, digits, interval int, hasher *Hasher, format Format) (*TOTP, error) {
+	otp, err := newOTP(secret, digits, hasher, format)
+	if err != nil {
+		return nil, err
+	}
+	return &TOTP{OTP: otp, interval: interval}, nil
 }
 
 // NewDefaultTOTP returns an TOTP struct with the given secret and set defaults.
 // The digit count is 6, interval 30, hasher SHA1 and format is decimal output.
-func NewDefaultTOTP(secret string) *TOTP {
+func NewDefaultTOTP(secret string) (*TOTP, error) {
 	return NewTOTP(secret, 6, 30, nil, FormatDec)
 }
 
@@ -66,7 +69,7 @@ returns: provisioning URI
 func (t *TOTP) ProvisioningURI(accountName, issuerName string) string {
 	return BuildURI(
 		OTPTypeTOTP,
-		t.secret,
+		encodeSecret(t.secret),
 		accountName,
 		issuerName,
 		t.hasher.HashName,
