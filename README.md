@@ -1,6 +1,7 @@
 # GOTP - The Golang One-Time Password Library
 
 [![build-status][build-status]][build-status] ![MIT License][license-badge]
+[![codecov](https://codecov.io/gh/diebietse/gotp/branch/master/graph/badge.svg)](https://codecov.io/gh/diebietse/gotp)
 
 GOTP is a Golang package for generating and verifying one-time passwords. It can be used to implement two-factor (2FA) or multi-factor (MFA) authentication methods in anywhere that requires users to log in.
 

@@ -1,6 +1,28 @@
+sudo: false
+
 language: go
+
+env:
+  - GO111MODULE=on
+
 go:
-    - 1.9
-install:
-    - go get -v -t ./...
-    - go get -v ./...
+  - 1.12.x
+
+git:
+  depth: 1
+
+install: true
+
+notifications:
+  email: false
+
+before_script:
+  - curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.15.0
+  - go mod vendor
+
+script:
+  - golangci-lint run
+  - go test -v -race  -coverprofile=coverage.txt -covermode=atomic ./...
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
