@@ -25,21 +25,22 @@ func NewDefaultTOTP(secret string) (*TOTP, error) {
 }
 
 // At generates the time OTP of given timestamp.
-func (t *TOTP) At(timestamp int) string {
+func (t *TOTP) At(timestamp int) (string, error) {
 	return t.generateOTP(t.timecode(timestamp))
 }
 
 // Now generates the current time OTP.
-func (t *TOTP) Now() string {
+func (t *TOTP) Now() (string, error) {
 	return t.At(currentTimestamp())
 }
 
 // NowWithExpiration generates the current time OTP and expiration time.
-func (t *TOTP) NowWithExpiration() (string, int64) {
+func (t *TOTP) NowWithExpiration() (string, int64, error) {
 	interval64 := int64(t.interval)
 	timeCodeInt64 := time.Now().Unix() / interval64
 	expirationTime := (timeCodeInt64 + 1) * interval64
-	return t.generateOTP(int(timeCodeInt64)), expirationTime
+	otp, err := t.generateOTP(int(timeCodeInt64))
+	return otp, expirationTime, err
 }
 
 /*
@@ -49,8 +50,12 @@ params:
     otp:         the OTP to check against
     timestamp:   time to check OTP at
 */
-func (t *TOTP) Verify(otp string, timestamp int) bool {
-	return otp == t.At(timestamp)
+func (t *TOTP) Verify(otp string, timestamp int) (bool, error) {
+	refOTP, err := t.At(timestamp)
+	if err != nil {
+		return false, err
+	}
+	return otp == refOTP, nil
 }
 
 /*
@@ -66,7 +71,7 @@ params:
 
 returns: provisioning URI
 */
-func (t *TOTP) ProvisioningURI(accountName, issuerName string) string {
+func (t *TOTP) ProvisioningURI(accountName, issuerName string) (string, error) {
 	return BuildURI(
 		OTPTypeTOTP,
 		encodeSecret(t.secret),

@@ -26,7 +26,6 @@ type OTP struct {
 // Format sets the output format of the OTP
 type Format int
 
-// Invalid format will cause a panic
 const (
 	Unknown Format = iota
 	FormatDec
@@ -59,7 +58,7 @@ func newOTP(secret string, digits int, hasher *Hasher, format Format) (*OTP, err
 	case FormatHex:
 		formatting = fmt.Sprintf("%%0%dx", digits)
 	default:
-		panic(fmt.Errorf("unknown output format selected: %v", format))
+		return nil, fmt.Errorf("unknown output format selected: %v", format)
 	}
 
 	otp := &OTP{
@@ -76,11 +75,10 @@ func newOTP(secret string, digits int, hasher *Hasher, format Format) (*OTP, err
 params
     input: the HMAC counter value to use as the OTP input. Usually either the counter, or the computed integer based on the Unix timestamp
 */
-func (o *OTP) generateOTP(input int) string {
+func (o *OTP) generateOTP(input int) (string, error) {
 	hasher := hmac.New(o.hasher.Digest, o.secret)
 	if _, err := hasher.Write(Itob(input)); err != nil {
-		// A write to hasher should never fail. We can just as well panic as something else major is at fault.
-		panic(err)
+		return "", err
 	}
 
 	hmacHash := hasher.Sum(nil)
@@ -98,7 +96,7 @@ func (o *OTP) generateOTP(input int) string {
 		code = code >> (32 - 4*uint(o.digits))
 	}
 
-	return fmt.Sprintf(o.formatting, code)
+	return fmt.Sprintf(o.formatting, code), nil
 }
 
 func byteSecret(secret string) ([]byte, error) {
