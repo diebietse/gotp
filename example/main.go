@@ -13,7 +13,11 @@ func main() {
 }
 
 func defaultTOTPUsage() {
-	otp, err := gotp.NewDefaultTOTP("4S62BZNFXXSZLCRO")
+	secret, err := gotp.DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	if err != nil {
+		panic(err)
+	}
+	otp, err := gotp.NewDefaultTOTP(secret)
 	if err != nil {
 		panic(err)
 	}
@@ -35,7 +39,11 @@ func defaultTOTPUsage() {
 }
 
 func defaultHOTPUsage() {
-	otp, err := gotp.NewDefaultHOTP("4S62BZNFXXSZLCRO")
+	secret, err := gotp.DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	if err != nil {
+		panic(err)
+	}
+	otp, err := gotp.NewDefaultHOTP(secret)
 	if err != nil {
 		panic(err)
 	}

@@ -7,7 +7,7 @@ type HOTP struct {
 
 // NewHOTP returns an HOTP struct.
 // If hasher is set to nil, the hasher defaults to SHA1.
-func NewHOTP(secret string, digits int, hasher *Hasher, format Format) (*HOTP, error) {
+func NewHOTP(secret []byte, digits int, hasher *Hasher, format Format) (*HOTP, error) {
 	otp, err := newOTP(secret, digits, hasher, format)
 	if err != nil {
 		return nil, err
@@ -18,7 +18,7 @@ func NewHOTP(secret string, digits int, hasher *Hasher, format Format) (*HOTP, e
 
 // NewDefaultHOTP returns an HOTP struct with the given secret and set defaults.
 // The digit count is 6, hasher SHA1 and format is decimal output.
-func NewDefaultHOTP(secret string) (*HOTP, error) {
+func NewDefaultHOTP(secret []byte) (*HOTP, error) {
 	return NewHOTP(secret, 6, nil, FormatDec)
 }
 
@@ -59,7 +59,7 @@ returns: provisioning URI
 func (h *HOTP) ProvisioningURI(accountName, issuerName string, initialCount int) (string, error) {
 	return BuildURI(
 		OTPTypeHOTP,
-		encodeSecret(h.secret),
+		EncodeSecretBase32(h.secret),
 		accountName,
 		issuerName,
 		h.hasher.HashName,

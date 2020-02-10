@@ -3,11 +3,9 @@ package gotp
 import (
 	"crypto/hmac"
 	"crypto/sha1"
-	"encoding/base32"
 	"fmt"
 	"hash"
 	"math"
-	"strings"
 )
 
 type Hasher struct {
@@ -35,15 +33,11 @@ const (
 // MaxOTPLength set the character length limit of the library
 const MaxOTPLength = 8
 
-func newOTP(secret string, digits int, hasher *Hasher, format Format) (*OTP, error) {
+func newOTP(secret []byte, digits int, hasher *Hasher, format Format) (*OTP, error) {
 	if digits < 0 || digits > MaxOTPLength {
 		return nil, fmt.Errorf("OTP length must be between 0 and %d characters", MaxOTPLength)
 	}
 
-	secretBytes, err := byteSecret(secret)
-	if err != nil {
-		return nil, fmt.Errorf("could not decode base32 encoded secret: %v", err)
-	}
 	if hasher == nil {
 		hasher = &Hasher{
 			HashName: "sha1",
@@ -62,7 +56,7 @@ func newOTP(secret string, digits int, hasher *Hasher, format Format) (*OTP, err
 	}
 
 	otp := &OTP{
-		secret:     secretBytes,
+		secret:     secret,
 		digits:     digits,
 		hasher:     hasher,
 		formatting: formatting,
@@ -97,20 +91,4 @@ func (o *OTP) generateOTP(input int) (string, error) {
 	}
 
 	return fmt.Sprintf(o.formatting, code), nil
-}
-
-func byteSecret(secret string) ([]byte, error) {
-	missingPadding := len(secret) % 8
-	if missingPadding != 0 {
-		secret = secret + strings.Repeat("=", 8-missingPadding)
-	}
-	bytes, err := base32.StdEncoding.DecodeString(secret)
-	if err != nil {
-		return nil, err
-	}
-	return bytes, nil
-}
-
-func encodeSecret(secret []byte) string {
-	return base32.StdEncoding.EncodeToString(secret)
 }

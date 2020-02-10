@@ -9,7 +9,9 @@ import (
 )
 
 func getDefaultTOTP(t *testing.T) *TOTP {
-	hotp, err := NewDefaultTOTP("4S62BZNFXXSZLCRO")
+	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	assert.NoError(t, err)
+	hotp, err := NewDefaultTOTP(secret)
 	assert.NoError(t, err)
 	return hotp
 }
@@ -54,7 +56,9 @@ func TestTOTP_ProvisioningUri(t *testing.T) {
 }
 
 func TestTOTP_NowWithExpirationHex(t *testing.T) {
-	otpHex, err := NewTOTP("4S62BZNFXXSZLCRO", 6, 30, nil, FormatHex)
+	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	assert.NoError(t, err)
+	otpHex, err := NewTOTP(secret, 6, 30, nil, FormatHex)
 	assert.NoError(t, err)
 	otp, exp, err := otpHex.NowWithExpiration()
 	assert.NoError(t, err, "OTP generation failed")
@@ -71,7 +75,7 @@ func TestTOTP_NowWithExpirationHex(t *testing.T) {
 }
 
 func TestTOTP_RFCTestValuesSHA1(t *testing.T) {
-	var rfc6238TestSecret = encodeSecret([]byte("12345678901234567890"))
+	var rfc6238TestSecret = []byte("12345678901234567890")
 
 	otpDec, err := NewTOTP(rfc6238TestSecret, 8, 30, nil, FormatDec)
 	assert.NoError(t, err)
@@ -101,7 +105,7 @@ func TestTOTP_RFCTestValuesSHA1(t *testing.T) {
 }
 
 func TestTOTP_RFCTestValuesSHA256(t *testing.T) {
-	var rfc6238TestSecret = encodeSecret([]byte("12345678901234567890123456789012"))
+	var rfc6238TestSecret = []byte("12345678901234567890123456789012")
 
 	hasher := &Hasher{HashName: "sha256", Digest: sha256.New}
 	otpDec, err := NewTOTP(rfc6238TestSecret, 8, 30, hasher, FormatDec)
@@ -132,7 +136,7 @@ func TestTOTP_RFCTestValuesSHA256(t *testing.T) {
 }
 
 func TestTOTP_RFCTestValuesSHA512(t *testing.T) {
-	var rfc6238TestSecret = encodeSecret([]byte("1234567890123456789012345678901234567890123456789012345678901234"))
+	var rfc6238TestSecret = []byte("1234567890123456789012345678901234567890123456789012345678901234")
 	hasher := &Hasher{HashName: "sha512", Digest: sha512.New}
 
 	otpDec, err := NewTOTP(rfc6238TestSecret, 8, 30, hasher, FormatDec)

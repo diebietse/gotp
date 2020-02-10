@@ -10,7 +10,7 @@ type TOTP struct {
 
 // NewTOTP returns an TOTP struct.
 // If hasher is set to nil, the hasher defaults to SHA1.
-func NewTOTP(secret string, digits, interval int, hasher *Hasher, format Format) (*TOTP, error) {
+func NewTOTP(secret []byte, digits, interval int, hasher *Hasher, format Format) (*TOTP, error) {
 	otp, err := newOTP(secret, digits, hasher, format)
 	if err != nil {
 		return nil, err
@@ -20,7 +20,7 @@ func NewTOTP(secret string, digits, interval int, hasher *Hasher, format Format)
 
 // NewDefaultTOTP returns an TOTP struct with the given secret and set defaults.
 // The digit count is 6, interval 30, hasher SHA1 and format is decimal output.
-func NewDefaultTOTP(secret string) (*TOTP, error) {
+func NewDefaultTOTP(secret []byte) (*TOTP, error) {
 	return NewTOTP(secret, 6, 30, nil, FormatDec)
 }
 
@@ -74,7 +74,7 @@ returns: provisioning URI
 func (t *TOTP) ProvisioningURI(accountName, issuerName string) (string, error) {
 	return BuildURI(
 		OTPTypeTOTP,
-		encodeSecret(t.secret),
+		EncodeSecretBase32(t.secret),
 		accountName,
 		issuerName,
 		t.hasher.HashName,

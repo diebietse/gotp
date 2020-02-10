@@ -6,10 +6,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var rfc4226TestSecret = encodeSecret([]byte("12345678901234567890"))
+var rfc4226TestSecret = []byte("12345678901234567890")
 
 func getDefaultHOTP(t *testing.T) *HOTP {
-	hotp, err := NewDefaultHOTP("4S62BZNFXXSZLCRO")
+	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	assert.NoError(t, err)
+	hotp, err := NewDefaultHOTP(secret)
 	assert.NoError(t, err)
 	return hotp
 }
@@ -29,7 +31,9 @@ func TestHOTP_Verify(t *testing.T) {
 }
 
 func TestHOTP_Hex(t *testing.T) {
-	otpHex, err := NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", 8, nil, FormatHex)
+	secret, err := DecodeSecretBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
+	assert.NoError(t, err)
+	otpHex, err := NewHOTP(secret, 8, nil, FormatHex)
 	assert.NoError(t, err)
 	otp, err := otpHex.At(0)
 	assert.NoError(t, err, "OTP generation failed")
@@ -37,7 +41,9 @@ func TestHOTP_Hex(t *testing.T) {
 }
 
 func TestHOTP_HexFive(t *testing.T) {
-	otpHex, err := NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", 5, nil, FormatHex)
+	secret, err := DecodeSecretBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
+	assert.NoError(t, err)
+	otpHex, err := NewHOTP(secret, 5, nil, FormatHex)
 	assert.NoError(t, err)
 	otp, err := otpHex.At(0)
 	assert.NoError(t, err, "OTP generation failed")
@@ -45,19 +51,18 @@ func TestHOTP_HexFive(t *testing.T) {
 }
 
 func TestHOTP_InvalidLength(t *testing.T) {
-	_, err := NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", 9, nil, FormatHex)
+	secret, err := DecodeSecretBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
+	assert.NoError(t, err)
+	_, err = NewHOTP(secret, 9, nil, FormatHex)
 	assert.Error(t, err)
-	_, err = NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", -1, nil, FormatHex)
-	assert.Error(t, err)
-}
-
-func TestHOTP_InvalidSecret(t *testing.T) {
-	_, err := NewHOTP("!@#$%^&*()", 8, nil, FormatHex)
+	_, err = NewHOTP(secret, -1, nil, FormatHex)
 	assert.Error(t, err)
 }
 
 func TestHOTP_InvalidFormat(t *testing.T) {
-	_, err := NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", 5, nil, Unknown)
+	secret, err := DecodeSecretBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
+	assert.NoError(t, err)
+	_, err = NewHOTP(secret, 5, nil, Unknown)
 	assert.Error(t, err)
 }
 
