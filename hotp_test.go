@@ -6,6 +6,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var rfc4226TestSecret = encodeSecret([]byte("12345678901234567890"))
+
 func getDefaultHOTP(t *testing.T) *HOTP {
 	hotp, err := NewDefaultHOTP("4S62BZNFXXSZLCRO")
 	assert.NoError(t, err)
@@ -57,4 +59,54 @@ func TestHOTP_InvalidSecret(t *testing.T) {
 func TestHOTP_InvalidFormat(t *testing.T) {
 	_, err := NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", 5, nil, Unknown)
 	assert.Error(t, err)
+}
+
+func TestHOTP_RFCTestValues(t *testing.T) {
+	otpDec, err := NewDefaultHOTP(rfc4226TestSecret)
+	assert.NoError(t, err)
+
+	// Expected results from https://tools.ietf.org/html/rfc4226#page-32
+	expectedResults := []string{
+		"755224",
+		"287082",
+		"359152",
+		"969429",
+		"338314",
+		"254676",
+		"287922",
+		"162583",
+		"399871",
+		"520489",
+	}
+
+	for i, expectedResult := range expectedResults {
+		otp, err := otpDec.At(i)
+		assert.NoError(t, err, "OTP generation failed")
+		assert.Equal(t, expectedResult, otp)
+	}
+}
+
+func TestHOTP_HexRFCTestValues(t *testing.T) {
+	otpHex, err := NewHOTP(rfc4226TestSecret, 8, nil, FormatHex)
+	assert.NoError(t, err)
+
+	// Expected results from https://tools.ietf.org/html/rfc4226#page-32
+	expectedResults := []string{
+		"4c93cf18",
+		"41397eea",
+		"082fef30",
+		"66ef7655",
+		"61c5938a",
+		"33c083d4",
+		"7256c032",
+		"04e5b397",
+		"2823443f",
+		"2679dc69",
+	}
+
+	for i, expectedResult := range expectedResults {
+		otp, err := otpHex.At(i)
+		assert.NoError(t, err, "OTP generation failed")
+		assert.Equal(t, expectedResult, otp)
+	}
 }

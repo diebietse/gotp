@@ -1,6 +1,8 @@
 package gotp
 
 import (
+	"crypto/sha256"
+	"crypto/sha512"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -66,4 +68,92 @@ func TestTOTP_NowWithExpirationHex(t *testing.T) {
 	otpAtExp, err := otpHex.At(int(exp))
 	assert.NoError(t, err, "OTP at expiry generation failed")
 	assert.Equal(t, otpAt30, otpAtExp)
+}
+
+func TestTOTP_RFCTestValuesSHA1(t *testing.T) {
+	var rfc6238TestSecret = encodeSecret([]byte("12345678901234567890"))
+
+	otpDec, err := NewTOTP(rfc6238TestSecret, 8, 30, nil, FormatDec)
+	assert.NoError(t, err)
+
+	otp, err := otpDec.At(59)
+	assert.NoError(t, err, "OTP generation failed")
+	assert.Equal(t, "94287082", otp)
+
+	// Test data from https://tools.ietf.org/html/rfc6238#appendix-B
+	tests := []struct {
+		timestep int
+		result   string
+	}{
+		{59, "94287082"},
+		{1111111109, "07081804"},
+		{1111111111, "14050471"},
+		{1234567890, "89005924"},
+		{2000000000, "69279037"},
+		{20000000000, "65353130"},
+	}
+
+	for _, test := range tests {
+		otp, err := otpDec.At(test.timestep)
+		assert.NoError(t, err, "OTP generation failed")
+		assert.Equal(t, test.result, otp)
+	}
+}
+
+func TestTOTP_RFCTestValuesSHA256(t *testing.T) {
+	var rfc6238TestSecret = encodeSecret([]byte("12345678901234567890123456789012"))
+
+	hasher := &Hasher{HashName: "sha256", Digest: sha256.New}
+	otpDec, err := NewTOTP(rfc6238TestSecret, 8, 30, hasher, FormatDec)
+	assert.NoError(t, err)
+
+	otp, err := otpDec.At(59)
+	assert.NoError(t, err, "OTP generation failed")
+	assert.Equal(t, "46119246", otp)
+
+	// Test data from https://tools.ietf.org/html/rfc6238#appendix-B
+	tests := []struct {
+		timestep int
+		result   string
+	}{
+		{59, "46119246"},
+		{1111111109, "68084774"},
+		{1111111111, "67062674"},
+		{1234567890, "91819424"},
+		{2000000000, "90698825"},
+		{20000000000, "77737706"},
+	}
+
+	for _, test := range tests {
+		otp, err := otpDec.At(test.timestep)
+		assert.NoError(t, err, "OTP generation failed")
+		assert.Equal(t, test.result, otp)
+	}
+}
+
+func TestTOTP_RFCTestValuesSHA512(t *testing.T) {
+	var rfc6238TestSecret = encodeSecret([]byte("1234567890123456789012345678901234567890123456789012345678901234"))
+	hasher := &Hasher{HashName: "sha512", Digest: sha512.New}
+
+	otpDec, err := NewTOTP(rfc6238TestSecret, 8, 30, hasher, FormatDec)
+	assert.NoError(t, err)
+
+	// Test data from https://tools.ietf.org/html/rfc6238#appendix-B
+	tests := []struct {
+		timestep int
+		result   string
+	}{
+		{59, "90693936"},
+		{1111111109, "25091201"},
+		{1111111111, "99943326"},
+		{1234567890, "93441116"},
+		{2000000000, "38618901"},
+		{20000000000, "47863826"},
+	}
+
+	for _, test := range tests {
+		otp, err := otpDec.At(test.timestep)
+		assert.NoError(t, err, "OTP generation failed")
+		assert.Equal(t, test.result, otp)
+	}
 }
