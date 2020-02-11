@@ -11,3 +11,6 @@ gofmt:
 	gofmt -l -s -w .
 .PHONY: gofmt
 
+benchmark:
+	go test -benchmem -bench .
+.PHONY: benchmark
