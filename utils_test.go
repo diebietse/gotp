@@ -59,7 +59,7 @@ func TestITob(t *testing.T) {
 	i := 1524486261
 	expect := []byte{0, 0, 0, 0, 90, 221, 208, 117}
 
-	assert.Equal(t, string(expect), string(Itob(i)), "Integer to byte array conversion failed")
+	assert.Equal(t, string(expect), string(itob(i)), "Integer to byte array conversion failed")
 }
 
 func TestRandomSecretLength(t *testing.T) {

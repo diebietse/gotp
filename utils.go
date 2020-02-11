@@ -67,7 +67,7 @@ func currentTimestamp() int {
 }
 
 // integer to byte array
-func Itob(integer int) []byte {
+func itob(integer int) []byte {
 	byteArr := make([]byte, 8)
 	for i := 7; i >= 0; i-- {
 		byteArr[i] = byte(integer & 0xff)

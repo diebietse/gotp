@@ -71,7 +71,7 @@ params
 */
 func (o *OTP) generateOTP(input int) (string, error) {
 	hasher := hmac.New(o.hasher.Digest, o.secret)
-	if _, err := hasher.Write(Itob(input)); err != nil {
+	if _, err := hasher.Write(itob(input)); err != nil {
 		return "", err
 	}
 
