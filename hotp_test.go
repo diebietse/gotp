@@ -16,6 +16,11 @@ func getDefaultHOTP(t *testing.T) *HOTP {
 	return hotp
 }
 
+func TestHOTP_WithError(t *testing.T) {
+	_, err := NewHOTP([]byte{}, WithLength(-1))
+	assert.Error(t, err)
+}
+
 func TestHOTP_At(t *testing.T) {
 	hotp := getDefaultHOTP(t)
 	otp, err := hotp.At(12345)
@@ -48,15 +53,6 @@ func TestHOTP_HexFive(t *testing.T) {
 	otp, err := otpHex.At(0)
 	assert.NoError(t, err, "OTP generation failed")
 	assert.Equal(t, "07a45", otp)
-}
-
-func TestHOTP_InvalidLength(t *testing.T) {
-	secret, err := DecodeSecretBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
-	assert.NoError(t, err)
-	_, err = NewHOTP(secret, WithLength(9), FormatHex())
-	assert.Error(t, err)
-	_, err = NewHOTP(secret, WithLength(-1), FormatHex())
-	assert.Error(t, err)
 }
 
 func TestHOTP_RFCTestValues(t *testing.T) {
@@ -108,4 +104,13 @@ func TestHOTP_HexRFCTestValues(t *testing.T) {
 		assert.NoError(t, err, "OTP generation failed")
 		assert.Equal(t, expectedResult, otp)
 	}
+}
+
+func TestHOTP_VerifyError(t *testing.T) {
+	brokenHasher := &Hasher{HashName: "broken", Digest: NewHash}
+	otp, err := NewHOTP(defaultTestSecret, WithHasher(brokenHasher))
+	assert.NoError(t, err)
+
+	_, err = otp.Verify("", 0)
+	assert.Error(t, err)
 }

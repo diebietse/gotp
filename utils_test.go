@@ -67,3 +67,8 @@ func TestRandomSecretLength(t *testing.T) {
 	secret := RandomSecret(length)
 	assert.Equal(t, length, len(secret), "Secret length did not match expected length")
 }
+
+func TestDecodeSecretBase32_Invalid(t *testing.T) {
+	_, err := DecodeSecretBase32("1")
+	assert.Error(t, err)
+}

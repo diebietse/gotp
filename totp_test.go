@@ -174,3 +174,12 @@ func TestTOTP_VerifyCustomInterval(t *testing.T) {
 	assert.NoError(t, err, "OTP verify failed")
 	assert.True(t, valid)
 }
+
+func TestTOTP_VerifyError(t *testing.T) {
+	brokenHasher := &Hasher{HashName: "broken", Digest: NewHash}
+	otp, err := NewTOTP(defaultTestSecret, WithHasher(brokenHasher))
+	assert.NoError(t, err)
+
+	_, err = otp.Verify("", 0)
+	assert.Error(t, err)
+}
