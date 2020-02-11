@@ -4,12 +4,12 @@ import (
 	"fmt"
 )
 
-func ExampleNewDefaultTOTP() {
+func ExampleNewTOTP() {
 	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
 	if err != nil {
 		panic(err)
 	}
-	otp, err := NewDefaultTOTP(secret)
+	otp, err := NewTOTP(secret)
 	if err != nil {
 		panic(err)
 	}
@@ -41,7 +41,7 @@ func ExampleTOTP_Now() {
 	if err != nil {
 		panic(err)
 	}
-	otp, err := NewDefaultTOTP(secret)
+	otp, err := NewTOTP(secret)
 	if err != nil {
 		panic(err)
 	}
@@ -52,12 +52,12 @@ func ExampleTOTP_Now() {
 	fmt.Printf("current one-time password is: %v\n", currentOTP)
 }
 
-func ExampleNewDefaultHOTP() {
+func ExampleNewHOTP() {
 	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
 	if err != nil {
 		panic(err)
 	}
-	otp, err := NewDefaultHOTP(secret)
+	otp, err := NewHOTP(secret)
 	if err != nil {
 		panic(err)
 	}

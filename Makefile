@@ -8,7 +8,7 @@ vendor:
 .PHONY: vendor
 
 gofmt:
-	gofmt -l -s -w .
+	gofmt -l -s -w ./*.go
 .PHONY: gofmt
 
 benchmark:
