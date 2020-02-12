@@ -6,12 +6,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var rfc4226TestSecret = encodeSecret([]byte("12345678901234567890"))
+var rfc4226TestSecret = []byte("12345678901234567890")
 
 func getDefaultHOTP(t *testing.T) *HOTP {
-	hotp, err := NewDefaultHOTP("4S62BZNFXXSZLCRO")
+	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	assert.NoError(t, err)
+	hotp, err := NewHOTP(secret)
 	assert.NoError(t, err)
 	return hotp
+}
+
+func TestHOTP_WithError(t *testing.T) {
+	_, err := NewHOTP([]byte{}, WithLength(-1))
+	assert.Error(t, err)
 }
 
 func TestHOTP_At(t *testing.T) {
@@ -29,7 +36,9 @@ func TestHOTP_Verify(t *testing.T) {
 }
 
 func TestHOTP_Hex(t *testing.T) {
-	otpHex, err := NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", 8, nil, FormatHex)
+	secret, err := DecodeSecretBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
+	assert.NoError(t, err)
+	otpHex, err := NewHOTP(secret, WithLength(8), FormatHex())
 	assert.NoError(t, err)
 	otp, err := otpHex.At(0)
 	assert.NoError(t, err, "OTP generation failed")
@@ -37,32 +46,17 @@ func TestHOTP_Hex(t *testing.T) {
 }
 
 func TestHOTP_HexFive(t *testing.T) {
-	otpHex, err := NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", 5, nil, FormatHex)
+	secret, err := DecodeSecretBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
+	assert.NoError(t, err)
+	otpHex, err := NewHOTP(secret, WithLength(5), FormatHex())
 	assert.NoError(t, err)
 	otp, err := otpHex.At(0)
 	assert.NoError(t, err, "OTP generation failed")
 	assert.Equal(t, "07a45", otp)
 }
 
-func TestHOTP_InvalidLength(t *testing.T) {
-	_, err := NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", 9, nil, FormatHex)
-	assert.Error(t, err)
-	_, err = NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", -1, nil, FormatHex)
-	assert.Error(t, err)
-}
-
-func TestHOTP_InvalidSecret(t *testing.T) {
-	_, err := NewHOTP("!@#$%^&*()", 8, nil, FormatHex)
-	assert.Error(t, err)
-}
-
-func TestHOTP_InvalidFormat(t *testing.T) {
-	_, err := NewHOTP("KZOSZD7X6RG7HWZUQI2KBJULFU", 5, nil, Unknown)
-	assert.Error(t, err)
-}
-
 func TestHOTP_RFCTestValues(t *testing.T) {
-	otpDec, err := NewDefaultHOTP(rfc4226TestSecret)
+	otpDec, err := NewHOTP(rfc4226TestSecret)
 	assert.NoError(t, err)
 
 	// Expected results from https://tools.ietf.org/html/rfc4226#page-32
@@ -87,7 +81,8 @@ func TestHOTP_RFCTestValues(t *testing.T) {
 }
 
 func TestHOTP_HexRFCTestValues(t *testing.T) {
-	otpHex, err := NewHOTP(rfc4226TestSecret, 8, nil, FormatHex)
+	otpHex, err := NewHOTP(rfc4226TestSecret, WithLength(8), FormatHex())
+
 	assert.NoError(t, err)
 
 	// Expected results from https://tools.ietf.org/html/rfc4226#page-32
@@ -109,4 +104,13 @@ func TestHOTP_HexRFCTestValues(t *testing.T) {
 		assert.NoError(t, err, "OTP generation failed")
 		assert.Equal(t, expectedResult, otp)
 	}
+}
+
+func TestHOTP_VerifyError(t *testing.T) {
+	brokenHasher := &Hasher{HashName: "broken", Digest: NewHash}
+	otp, err := NewHOTP(defaultTestSecret, WithHasher(brokenHasher))
+	assert.NoError(t, err)
+
+	_, err = otp.Verify("", 0)
+	assert.Error(t, err)
 }
