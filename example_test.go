@@ -1,11 +1,12 @@
 package gotp
 
+// spell-checker:disable
 import (
 	"fmt"
 )
 
 func ExampleNewTOTP() {
-	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	secret, err := DecodeBase32("4S62BZNFXXSZLCRO")
 	if err != nil {
 		panic(err)
 	}
@@ -37,7 +38,7 @@ func ExampleNewTOTP() {
 }
 
 func ExampleTOTP_Now() {
-	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	secret, err := DecodeBase32("4S62BZNFXXSZLCRO")
 	if err != nil {
 		panic(err)
 	}
@@ -53,7 +54,7 @@ func ExampleTOTP_Now() {
 }
 
 func ExampleNewHOTP() {
-	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	secret, err := DecodeBase32("4S62BZNFXXSZLCRO")
 	if err != nil {
 		panic(err)
 	}

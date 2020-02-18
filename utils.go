@@ -10,30 +10,17 @@ import (
 )
 
 const (
+	// OTPTypeTOTP is the Time Based OTP type
 	OTPTypeTOTP = "totp"
+	// OTPTypeHOTP is the Counter Based OTP type
 	OTPTypeHOTP = "hotp"
 )
 
-/*
-BuildURI returns the provisioning URI for the OTP; works for either TOTP or HOTP.
-This can then be encoded in a QR Code and used to provision the Google Authenticator app.
-For module-internal use.
-See also:
-    https://github.com/google/google-authenticator/wiki/Key-Uri-Format
-
-params:
-    otpType：     otp type, must in totp/hotp
-    secret:       the hotp/totp secret used to generate the URI
-    accountName:  name of the account
-    issuerName:   the name of the OTP issuer; this will be the organization title of the OTP entry in Authenticator
-    algorithm:    the algorithm used in the OTP generation
-    initialCount: starting counter value. Only works for hotp
-    digits:       the length of the OTP generated code.
-    period:       the number of seconds the OTP generator is set to expire every code.
-
-returns: provisioning uri
-*/
-func BuildURI(otpType, secret, accountName, issuerName, algorithm string, initialCount, digits, period int) (string, error) {
+// buildURI returns the provisioning URI for a OTP with the given values.
+// This can then be encoded in a QR Code and used to provision an OTP app like Google Authenticator.
+//
+// See https://github.com/google/google-authenticator/wiki/Key-Uri-Format.
+func buildURI(otpType, secret, accountName, issuerName, algorithm string, initialCount, digits, period int) (string, error) {
 	if otpType != OTPTypeHOTP && otpType != OTPTypeTOTP {
 		return "", fmt.Errorf("otp type error, got %v", otpType)
 	}
@@ -61,12 +48,12 @@ func BuildURI(otpType, secret, accountName, issuerName, algorithm string, initia
 	return fmt.Sprintf("otpauth://%s/%s?%s", otpType, label, strings.Join(urlParams, "&")), nil
 }
 
-// get current timestamp
+// currentTimestamp get the current timestamp in unix format
 func currentTimestamp() int {
 	return int(time.Now().Unix())
 }
 
-// integer to byte array
+// itob converts an integer to a byte array
 func itob(integer int) []byte {
 	byteArr := make([]byte, 8)
 	for i := 7; i >= 0; i-- {
@@ -76,9 +63,10 @@ func itob(integer int) []byte {
 	return byteArr
 }
 
-//RandomSecret generate a random secret of given length
-func RandomSecret(length int) string {
+// RandomBase32Secret generate a random base32 secret of given length
+func RandomBase32Secret(length int) string {
 	rand.Seed(time.Now().UnixNano())
+	// spell-checker:disable-next-line
 	letterRunes := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567")
 
 	bytes := make([]rune, length)
@@ -90,7 +78,8 @@ func RandomSecret(length int) string {
 	return string(bytes)
 }
 
-func DecodeSecretBase32(secret string) ([]byte, error) {
+// DecodeBase32 decodes a base32 string and returns a byte array or error if it is not a valid base32 string
+func DecodeBase32(secret string) ([]byte, error) {
 	missingPadding := len(secret) % 8
 	if missingPadding != 0 {
 		secret = secret + strings.Repeat("=", 8-missingPadding)
@@ -102,6 +91,7 @@ func DecodeSecretBase32(secret string) ([]byte, error) {
 	return bytes, nil
 }
 
-func EncodeSecretBase32(secret []byte) string {
+// EncodeBase32 encodes a byte array into a base32 string
+func EncodeBase32(secret []byte) string {
 	return base32.StdEncoding.EncodeToString(secret)
 }

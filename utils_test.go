@@ -1,5 +1,6 @@
 package gotp
 
+// spell-checker:disable
 import (
 	"testing"
 
@@ -12,7 +13,7 @@ const (
 )
 
 func TestBuildUri(t *testing.T) {
-	uri, err := BuildURI(
+	uri, err := buildURI(
 		"totp",
 		"4S62BZNFXXSZLCRO",
 		"xlzd",
@@ -27,7 +28,7 @@ func TestBuildUri(t *testing.T) {
 }
 
 func TestBuildUri_nonDefaults(t *testing.T) {
-	uri, err := BuildURI(
+	uri, err := buildURI(
 		"hotp",
 		"4S62BZNFXXSZLCRO",
 		"xlzd",
@@ -42,7 +43,7 @@ func TestBuildUri_nonDefaults(t *testing.T) {
 }
 
 func TestBuildUri_fail(t *testing.T) {
-	_, err := BuildURI(
+	_, err := buildURI(
 		"potp",
 		"4S62BZNFXXSZLCRO",
 		"xlzd",
@@ -64,11 +65,11 @@ func TestITob(t *testing.T) {
 
 func TestRandomSecretLength(t *testing.T) {
 	length := 12
-	secret := RandomSecret(length)
+	secret := RandomBase32Secret(length)
 	assert.Equal(t, length, len(secret), "Secret length did not match expected length")
 }
 
 func TestDecodeSecretBase32_Invalid(t *testing.T) {
-	_, err := DecodeSecretBase32("1")
+	_, err := DecodeBase32("1")
 	assert.Error(t, err)
 }

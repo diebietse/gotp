@@ -1,11 +1,11 @@
 package gotp
 
-// HOTP is the HMAC-based OTP counters.
+// HOTP generates usage counter based OTPs
 type HOTP struct {
 	*OTP
 }
 
-// NewHOTP returns an HOTP struct with the given secret and set defaults.
+// NewHOTP returns a HOTP struct with the given secret and set defaults.
 // The digit count is 6, hasher SHA1 and format is decimal output.
 func NewHOTP(secret []byte, opt ...OTPOption) (*HOTP, error) {
 	otp, err := newOTP(secret, opt...)
@@ -16,18 +16,12 @@ func NewHOTP(secret []byte, opt ...OTPOption) (*HOTP, error) {
 
 }
 
-// At generates the OTP for the given count.
+// At generates the OTP for the given `count` offset.
 func (h *HOTP) At(count int) (string, error) {
 	return h.generateOTP(count)
 }
 
-/*
-Verify OTP.
-
-params:
-    otp:   the OTP to check against
-    count: the OTP HMAC counter
-*/
+// Verify verifies if a given OTP is valid at a given `count` offset
 func (h *HOTP) Verify(otp string, count int) (bool, error) {
 	refOTP, err := h.At(count)
 	if err != nil {
@@ -36,24 +30,16 @@ func (h *HOTP) Verify(otp string, count int) (bool, error) {
 	return otp == refOTP, nil
 }
 
-/*
-ProvisioningURI returns the provisioning URI for the OTP.
-This can then be encoded in a QR Code and used to provision an OTP app like Google Authenticator.
-
-See also:
-    https://github.com/google/google-authenticator/wiki/Key-Uri-Format
-
-params:
-    accountName:  name of the account
-    issuerName:   the name of the OTP issuer; this will be the organization title of the OTP entry in Authenticator
-    initialCount: starting HMAC counter value
-
-returns: provisioning URI
-*/
+// ProvisioningURI returns the provisioning URI for the OTP.
+// This can then be encoded in a QR Code and used to provision an OTP app like Google Authenticator.
+//
+// It can be given a human readable `accountName` and `issuerName`, as well as an `initialCount` for the OTP generation
+//
+// See https://github.com/google/google-authenticator/wiki/Key-Uri-Format.
 func (h *HOTP) ProvisioningURI(accountName, issuerName string, initialCount int) (string, error) {
-	return BuildURI(
+	return buildURI(
 		OTPTypeHOTP,
-		EncodeSecretBase32(h.secret),
+		EncodeBase32(h.secret),
 		accountName,
 		issuerName,
 		h.hasher.HashName,

@@ -1,5 +1,6 @@
 package gotp
 
+// spell-checker:disable
 import (
 	"crypto/sha256"
 	"crypto/sha512"
@@ -9,7 +10,7 @@ import (
 )
 
 func getDefaultTOTP(t *testing.T) *TOTP {
-	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	secret, err := DecodeBase32("4S62BZNFXXSZLCRO")
 	assert.NoError(t, err)
 	totp, err := NewTOTP(secret)
 	assert.NoError(t, err)
@@ -61,7 +62,7 @@ func TestTOTP_ProvisioningUri(t *testing.T) {
 }
 
 func TestTOTP_NowWithExpirationHex(t *testing.T) {
-	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	secret, err := DecodeBase32("4S62BZNFXXSZLCRO")
 	assert.NoError(t, err)
 	otpHex, err := NewTOTP(secret, FormatHex())
 	assert.NoError(t, err)
