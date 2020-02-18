@@ -13,63 +13,66 @@ This fork provides the functionality to produce OTPs with a hexadecimal output f
 
 ## Installation
 
-```
-$ go get github.com/diebietse/gotp
+```console
+go get github.com/diebietse/gotp/v2
 ```
 
 ## Usage
 
-Check API docs at https://godoc.org/github.com/diebietse/gotp
+Check API docs at <https://godoc.org/github.com/diebietse/gotp>
 
 ### Time-based OTPs
 
 ```Go
-totp := gotp.NewDefaultTOTP("4S62BZNFXXSZLCRO")
+secret, _ := gotp.DecodeBase32("4S62BZNFXXSZLCRO")
+totp, _ := gotp.NewTOTP(secret)
 totp.Now()  // current otp '123456'
 totp.At(1524486261)  // otp of timestamp 1524486261 '123456'
 
-# OTP verified for a given timestamp
-totp.Verify('492039', 1524486261)  // true
-totp.Verify('492039', 1520000000)  // false
+// OTP verified for a given timestamp
+totp.Verify("492039", 1524486261)  // true
+totp.Verify("492039", 1520000000)  // false
 
 // generate a provisioning uri
-totp.ProvisioningUri("demoAccountName", "issuerName")
+totp.ProvisioningURI("demoAccountName", "issuerName")
 // otpauth://totp/issuerName:demoAccountName?secret=4S62BZNFXXSZLCRO&issuer=issuerName
 ```
 
 ### Counter-based OTPs
 
 ```Go
-hotp := gotp.NewDefaultHOTP("4S62BZNFXXSZLCRO")
+secret, _ := gotp.DecodeBase32("4S62BZNFXXSZLCRO")
+hotp, _ := gotp.NewHOTP(secret)
 hotp.At(0)  // '944181'
 hotp.At(1)  // '770975'
 
-# OTP verified for a given timestamp
-hotp.Verify('944181', 0)  // true
-hotp.Verify('944181', 1)  // false
+// OTP verified for a given counter
+hotp.Verify("944181", 0)  // true
+hotp.Verify("944181", 1)  // false
 
 // generate a provisioning uri
-hotp.ProvisioningUri("demoAccountName", "issuerName", 1)
+hotp.ProvisioningURI("demoAccountName", "issuerName", 1)
 // otpauth://hotp/issuerName:demoAccountName?secret=4S62BZNFXXSZLCRO&counter=1&issuer=issuerName
 ```
 
 ### Hex HOTP Output Example
 
 ```Go
-hotp := NewHOTP("4S62BZNFXXSZLCRO", 6, nil, FormatHex)
+secret, _ := gotp.DecodeBase32("4S62BZNFXXSZLCRO")
+hotp, _ := gotp.NewHOTP(secret, FormatHex())
 hotp.At(0)  // '0e6835'
 hotp.At(1)  // '0bc39f'
 
-# OTP verified for a given timestamp
-hotp.Verify('0e6835', 0)  // true
-hotp.Verify('0e6835', 1)  // false
+// OTP verified for a given timestamp
+hotp.Verify("0e6835", 0)  // true
+hotp.Verify("0e6835", 1)  // false
 ```
 
 ### Generate random secret
 
 ```Go
 secretLength := 16
-gotp.RandomSecret(secretLength) // LMT4URYNZKEWZRAA
+gotp.RandomBase32Secret(secretLength) // LMT4URYNZKEWZRAA
 ```
 
 ### Google Authenticator Compatible
@@ -79,11 +82,14 @@ GOTP includes the ability to generate provisioning URIs for use with the QR Code
 scanner built into these MFA client apps via `otpObj.ProvisioningUri` method:
 
 ```Go
-gotp.NewDefaultTOTP("4S62BZNFXXSZLCRO").ProvisioningUri("demoAccountName", "issuerName")
+secret, _ := gotp.DecodeBase32("4S62BZNFXXSZLCRO")
+totp, _ := gotp.NewTOTP(secret)
+totp.ProvisioningUri("demoAccountName", "issuerName")
 // otpauth://totp/issuerName:demoAccountName?secret=4S62BZNFXXSZLCRO&issuer=issuerName
 
-
-gotp.NewDefaultHOTP("4S62BZNFXXSZLCRO").ProvisioningUri("demoAccountName", "issuerName", 1)
+secret, _ := gotp.DecodeBase32("4S62BZNFXXSZLCRO")
+hotp, _ := gotp.NewHOTP(secret)
+hotp.ProvisioningUri("demoAccountName", "issuerName", 1)
 // otpauth://hotp/issuerName:demoAccountName?secret=4S62BZNFXXSZLCRO&counter=1&issuer=issuerName
 ```
 
@@ -102,11 +108,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/diebietse/gotp"
+	gotp "github.com/diebietse/gotp/v2"
 )
 
 func main() {
-	fmt.Println("Current OTP is", gotp.NewDefaultTOTP("4S62BZNFXXSZLCRO").Now())
+	secret, _ := gotp.DecodeBase32("4S62BZNFXXSZLCRO")
+	totp, _ := gotp.NewTOTP(secret)
+	fmt.Println("Current OTP is", totp.Now())
 }
 ```
 

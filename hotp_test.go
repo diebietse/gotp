@@ -1,5 +1,6 @@
 package gotp
 
+// spell-checker:disable
 import (
 	"testing"
 
@@ -9,7 +10,7 @@ import (
 var rfc4226TestSecret = []byte("12345678901234567890")
 
 func getDefaultHOTP(t *testing.T) *HOTP {
-	secret, err := DecodeSecretBase32("4S62BZNFXXSZLCRO")
+	secret, err := DecodeBase32("4S62BZNFXXSZLCRO")
 	assert.NoError(t, err)
 	hotp, err := NewHOTP(secret)
 	assert.NoError(t, err)
@@ -36,7 +37,7 @@ func TestHOTP_Verify(t *testing.T) {
 }
 
 func TestHOTP_Hex(t *testing.T) {
-	secret, err := DecodeSecretBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
+	secret, err := DecodeBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
 	assert.NoError(t, err)
 	otpHex, err := NewHOTP(secret, WithLength(8), FormatHex())
 	assert.NoError(t, err)
@@ -46,7 +47,7 @@ func TestHOTP_Hex(t *testing.T) {
 }
 
 func TestHOTP_HexFive(t *testing.T) {
-	secret, err := DecodeSecretBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
+	secret, err := DecodeBase32("KZOSZD7X6RG7HWZUQI2KBJULFU")
 	assert.NoError(t, err)
 	otpHex, err := NewHOTP(secret, WithLength(5), FormatHex())
 	assert.NoError(t, err)

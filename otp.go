@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// MaxOTPLength set the character length limit of the library
+// MaxOTPLength is the maximun character length that OTP can be set to in the library
 const MaxOTPLength = 8
 
 const (
@@ -18,13 +18,17 @@ const (
 	formatHex
 )
 
+// Hasher provides a custom hashing implementation for a OTP
 type Hasher struct {
+	// HashName is unique identifier for this hashing implementation
 	HashName string
-	Digest   func() hash.Hash
+	// Digest is a function that returns a `hash.Hash` when called
+	Digest func() hash.Hash
 }
 
 var sha1Hasher = &Hasher{HashName: "sha1", Digest: sha1.New}
 
+// OTP knows how to generates OTPs
 type OTP struct {
 	otpOptions
 	secret []byte // secret in binary formats
@@ -44,8 +48,10 @@ var defaultOTPOptions = otpOptions{
 	format:   formatDec,
 }
 
+// OTPOption configures OTPs
 type OTPOption func(*otpOptions) error
 
+// WithLength make generated OTPs have the given length
 func WithLength(l int) OTPOption {
 	return func(o *otpOptions) error {
 		if l < 0 || l > MaxOTPLength {
@@ -56,6 +62,7 @@ func WithLength(l int) OTPOption {
 	}
 }
 
+// WithHasher lets OTPs be generated using the given hasher
 func WithHasher(hasher *Hasher) OTPOption {
 	return func(o *otpOptions) error {
 		o.hasher = hasher
@@ -63,6 +70,7 @@ func WithHasher(hasher *Hasher) OTPOption {
 	}
 }
 
+// WithInterval lets TOTPs have the given interval for changing its values
 func WithInterval(i int) OTPOption {
 	return func(o *otpOptions) error {
 		if i < 0 {
@@ -73,6 +81,7 @@ func WithInterval(i int) OTPOption {
 	}
 }
 
+// FormatHex lets OTPs be returned in Hexadecimal format instead of Decimal format
 func FormatHex() OTPOption {
 	return func(o *otpOptions) error {
 		o.format = formatHex
@@ -108,13 +117,9 @@ func newOTP(secret []byte, opt ...OTPOption) (*OTP, error) {
 	return otp, nil
 }
 
-/*
-params
-    input: the HMAC counter value to use as the OTP input. Usually either the counter, or the computed integer based on the Unix timestamp
-*/
-func (o *OTP) generateOTP(input int) (string, error) {
+func (o *OTP) generateOTP(movingFactor int) (string, error) {
 	hasher := hmac.New(o.hasher.Digest, o.secret)
-	if _, err := hasher.Write(itob(input)); err != nil {
+	if _, err := hasher.Write(itob(movingFactor)); err != nil {
 		return "", err
 	}
 

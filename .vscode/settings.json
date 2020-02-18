@@ -1,0 +1,7 @@
+{
+  "cSpell.words": ["otps", "totps", "diebietse", "gotp", "hotp", "itob", "otpauth", "stretchr", "totp"],
+  "go.formatTool": "gofmt",
+  "go.formatFlags": ["-l -s -w"],
+  "go.lintTool": "golangci-lint",
+  "go.testFlags": ["-v", "-cover", "-race"]
+}
