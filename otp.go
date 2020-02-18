@@ -13,11 +13,6 @@ import (
 // MaxOTPLength is the maximun character length that OTP can be set to in the library
 const MaxOTPLength = 8
 
-const (
-	formatDec = iota
-	formatHex
-)
-
 // Hasher provides a custom hashing implementation for a OTP
 type Hasher struct {
 	// HashName is unique identifier for this hashing implementation
@@ -26,7 +21,22 @@ type Hasher struct {
 	Digest func() hash.Hash
 }
 
+type formattter struct {
+	createFormatString func(length int) string
+	calculateRemainder func(binCode, length int) int
+}
+
 var sha1Hasher = &Hasher{HashName: "sha1", Digest: sha1.New}
+
+var decFormatter = &formattter{
+	createFormatString: func(length int) string { return fmt.Sprintf("%%0%dd", length) },
+	calculateRemainder: func(binCode, length int) int { return binCode % int(math.Pow10(length)) },
+}
+
+var hexFormatter = &formattter{
+	createFormatString: func(length int) string { return fmt.Sprintf("%%0%dx", length) },
+	calculateRemainder: func(binCode, length int) int { return binCode >> (32 - 4*uint(length)) },
+}
 
 // OTP knows how to generates OTPs
 type OTP struct {
@@ -35,17 +45,18 @@ type OTP struct {
 }
 
 type otpOptions struct {
-	length   int     // number of integers in the OTP. Some apps expect this to be 6 digits, others support more.
-	interval int     // the interval at which a TOTP changes its value in seconds
-	hasher   *Hasher // digest function to use in the HMAC (expected to be sha1)
-	format   int
+	length       int         // number of integers in the OTP. Some apps expect this to be 6 digits, others support more.
+	interval     int         // the interval at which a TOTP changes its value in seconds
+	hasher       *Hasher     // digest function to use in the HMAC
+	formatter    *formattter // creates the format string and calculates the binCode remainder for the correct output
+	formatString string      // formats the final output
 }
 
 var defaultOTPOptions = otpOptions{
-	length:   6,
-	interval: 30,
-	hasher:   sha1Hasher,
-	format:   formatDec,
+	length:    6,
+	interval:  30,
+	hasher:    sha1Hasher,
+	formatter: decFormatter,
 }
 
 // OTPOption configures OTPs
@@ -84,7 +95,7 @@ func WithInterval(i int) OTPOption {
 // FormatHex lets OTPs be returned in Hexadecimal format instead of Decimal format
 func FormatHex() OTPOption {
 	return func(o *otpOptions) error {
-		o.format = formatHex
+		o.formatter = hexFormatter
 		return nil
 	}
 }
@@ -110,6 +121,8 @@ func newOTP(secret []byte, opt ...OTPOption) (*OTP, error) {
 		return nil, err
 	}
 
+	opts.formatString = opts.formatter.createFormatString(opts.length)
+
 	otp := &OTP{
 		otpOptions: opts,
 		secret:     secret,
@@ -131,15 +144,7 @@ func (o *OTP) generateOTP(movingFactor int) (string, error) {
 		((int(hmacHash[offset+2] & 0xff)) << 8) |
 		(int(hmacHash[offset+3]) & 0xff)
 
-	var formatting string
-	switch o.format {
-	case formatHex:
-		formatting = fmt.Sprintf("%%0%dx", o.length)
-		code = code >> (32 - 4*uint(o.length))
-	default: // formatDec
-		formatting = fmt.Sprintf("%%0%dd", o.length)
-		code = code % int(math.Pow10(o.length))
-	}
+	code = o.formatter.calculateRemainder(code, o.length)
 
-	return fmt.Sprintf(formatting, code), nil
+	return fmt.Sprintf(o.formatString, code), nil
 }
