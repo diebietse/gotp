@@ -71,8 +71,7 @@ hotp.Verify("0e6835", 1)  // false
 ### Generate random secret
 
 ```Go
-secretLength := 16
-gotp.RandomBase32Secret(secretLength) // LMT4URYNZKEWZRAA
+secret, _ := RandomSecret(sha1.Size)
 ```
 
 ### Google Authenticator Compatible

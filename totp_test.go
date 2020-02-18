@@ -86,10 +86,6 @@ func TestTOTP_RFCTestValuesSHA1(t *testing.T) {
 	otpDec, err := NewTOTP(rfc6238TestSecret, WithLength(8))
 	assert.NoError(t, err)
 
-	otp, err := otpDec.At(59)
-	assert.NoError(t, err, "OTP generation failed")
-	assert.Equal(t, "94287082", otp)
-
 	// Test data from https://tools.ietf.org/html/rfc6238#appendix-B
 	tests := []struct {
 		timestep int
@@ -116,10 +112,6 @@ func TestTOTP_RFCTestValuesSHA256(t *testing.T) {
 	sha256Hasher := &Hasher{HashName: "sha256", Digest: sha256.New}
 	otpDec, err := NewTOTP(rfc6238TestSecret, WithLength(8), WithHasher(sha256Hasher))
 	assert.NoError(t, err)
-
-	otp, err := otpDec.At(59)
-	assert.NoError(t, err, "OTP generation failed")
-	assert.Equal(t, "46119246", otp)
 
 	// Test data from https://tools.ietf.org/html/rfc6238#appendix-B
 	tests := []struct {
