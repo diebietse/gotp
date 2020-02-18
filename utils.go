@@ -1,9 +1,9 @@
 package gotp
 
 import (
+	"crypto/rand"
 	"encoding/base32"
 	"fmt"
-	"math/rand"
 	"net/url"
 	"strings"
 	"time"
@@ -63,19 +63,11 @@ func itob(integer int) []byte {
 	return byteArr
 }
 
-// RandomBase32Secret generate a random base32 secret of given length
-func RandomBase32Secret(length int) string {
-	rand.Seed(time.Now().UnixNano())
-	// spell-checker:disable-next-line
-	letterRunes := []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ234567")
-
-	bytes := make([]rune, length)
-
-	for i := range bytes {
-		bytes[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-
-	return string(bytes)
+// RandomSecret generate a random []byte secret of given length
+func RandomSecret(length int) ([]byte, error) {
+	b := make([]byte, length)
+	_, err := rand.Read(b)
+	return b, err
 }
 
 // DecodeBase32 decodes a base32 string and returns a byte array or error if it is not a valid base32 string

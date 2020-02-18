@@ -2,6 +2,7 @@ package gotp
 
 // spell-checker:disable
 import (
+	"crypto/sha1"
 	"fmt"
 )
 
@@ -84,4 +85,15 @@ func ExampleNewHOTP() {
 	// one-time password of counter 0 is: 944181
 	// uri: otpauth://hotp/issuerName:demoAccountName?secret=4S62BZNFXXSZLCRO&counter=1&issuer=issuerName
 	// otp is valid: true
+}
+
+func ExampleRandomSecret() {
+	secret, err := RandomSecret(sha1.Size)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("secret length is: %d\n", len(secret))
+
+	// Output:
+	// secret length is: 20
 }

@@ -65,7 +65,8 @@ func TestITob(t *testing.T) {
 
 func TestRandomSecretLength(t *testing.T) {
 	length := 12
-	secret := RandomBase32Secret(length)
+	secret, err := RandomSecret(length)
+	assert.NoError(t, err)
 	assert.Equal(t, length, len(secret), "Secret length did not match expected length")
 }
 
