@@ -14,7 +14,7 @@ This fork provides the functionality to produce OTPs with a hexadecimal output f
 ## Installation
 
 ```console
-go get github.com/diebietse/gotp
+go get github.com/diebietse/gotp/v2
 ```
 
 ## Usage
@@ -108,7 +108,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/diebietse/gotp"
+	gotp "github.com/diebietse/gotp/v2"
 )
 
 func main() {
