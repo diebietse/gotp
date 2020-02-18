@@ -38,8 +38,8 @@ var hexFormatter = &formattter{
 	calculateRemainder: func(binCode, length int) int { return binCode >> (32 - 4*uint(length)) },
 }
 
-// OTP knows how to generates OTPs
-type OTP struct {
+// otp knows how to generates OTPs
+type otp struct {
 	otpOptions
 	secret []byte // secret in binary formats
 }
@@ -114,7 +114,7 @@ func (o *otpOptions) applyOpts(opts []OTPOption) error {
 	return errors.New(strings.Join(errorStrings, ", "))
 }
 
-func newOTP(secret []byte, opt ...OTPOption) (*OTP, error) {
+func newOTP(secret []byte, opt ...OTPOption) (*otp, error) {
 	opts := defaultOTPOptions
 
 	if err := opts.applyOpts(opt); err != nil {
@@ -123,14 +123,14 @@ func newOTP(secret []byte, opt ...OTPOption) (*OTP, error) {
 
 	opts.formatString = opts.formatter.createFormatString(opts.length)
 
-	otp := &OTP{
+	o := &otp{
 		otpOptions: opts,
 		secret:     secret,
 	}
-	return otp, nil
+	return o, nil
 }
 
-func (o *OTP) generateOTP(movingFactor int) (string, error) {
+func (o *otp) generateOTP(movingFactor int) (string, error) {
 	hasher := hmac.New(o.hasher.Digest, o.secret)
 	if _, err := hasher.Write(itob(movingFactor)); err != nil {
 		return "", err

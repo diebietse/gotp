@@ -2,7 +2,7 @@ package gotp
 
 // HOTP generates usage counter based OTPs
 type HOTP struct {
-	*OTP
+	*otp
 }
 
 // NewHOTP returns a HOTP struct with the given secret and set defaults.
@@ -12,7 +12,7 @@ func NewHOTP(secret []byte, opt ...OTPOption) (*HOTP, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &HOTP{OTP: otp}, nil
+	return &HOTP{otp: otp}, nil
 
 }
 
@@ -33,12 +33,12 @@ func (h *HOTP) Verify(otp string, count int) (bool, error) {
 // ProvisioningURI returns the provisioning URI for the OTP.
 // This can then be encoded in a QR Code and used to provision an OTP app like Google Authenticator.
 //
-// It can be given a human readable `accountName` and `issuerName`, as well as an `initialCount` for the OTP generation
+// It can be given a human readable "accountName" and "issuerName", as well as an "initialCount" for the OTP generation.
 //
 // See https://github.com/google/google-authenticator/wiki/Key-Uri-Format.
 func (h *HOTP) ProvisioningURI(accountName, issuerName string, initialCount int) (string, error) {
 	return buildURI(
-		OTPTypeHOTP,
+		otpTypeHOTP,
 		EncodeBase32(h.secret),
 		accountName,
 		issuerName,

@@ -4,7 +4,7 @@ import "time"
 
 // TOTP generates time-based OTPs
 type TOTP struct {
-	*OTP
+	*otp
 }
 
 // NewTOTP returns a TOTP struct with the given secret and set defaults.
@@ -14,7 +14,7 @@ func NewTOTP(secret []byte, opt ...OTPOption) (*TOTP, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &TOTP{OTP: otp}, nil
+	return &TOTP{otp: otp}, nil
 }
 
 // At generates the time-based OTP for the given timestamp.
@@ -48,12 +48,12 @@ func (t *TOTP) Verify(otp string, timestamp int) (bool, error) {
 // ProvisioningURI returns the provisioning URI for the TOTP.
 // This can then be encoded in a QR Code and used to provision an OTP app like Google Authenticator.
 //
-// It can be given a human readable `accountName` and `issuerName` for the TOTP generation
+// It can be given a human readable "accountName" and "issuerName" for the TOTP generation.
 //
 // See https://github.com/google/google-authenticator/wiki/Key-Uri-Format.
 func (t *TOTP) ProvisioningURI(accountName, issuerName string) (string, error) {
 	return buildURI(
-		OTPTypeTOTP,
+		otpTypeTOTP,
 		EncodeBase32(t.secret),
 		accountName,
 		issuerName,

@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	// OTPTypeTOTP is the Time Based OTP type
-	OTPTypeTOTP = "totp"
-	// OTPTypeHOTP is the Counter Based OTP type
-	OTPTypeHOTP = "hotp"
+	// otpTypeTOTP is the Time Based OTP type
+	otpTypeTOTP = "totp"
+	// otpTypeHOTP is the Counter Based OTP type
+	otpTypeHOTP = "hotp"
 )
 
 // buildURI returns the provisioning URI for a OTP with the given values.
@@ -21,13 +21,13 @@ const (
 //
 // See https://github.com/google/google-authenticator/wiki/Key-Uri-Format.
 func buildURI(otpType, secret, accountName, issuerName, algorithm string, initialCount, digits, period int) (string, error) {
-	if otpType != OTPTypeHOTP && otpType != OTPTypeTOTP {
+	if otpType != otpTypeHOTP && otpType != otpTypeTOTP {
 		return "", fmt.Errorf("otp type error, got %v", otpType)
 	}
 
 	urlParams := make([]string, 0)
 	urlParams = append(urlParams, "secret="+secret)
-	if otpType == OTPTypeHOTP {
+	if otpType == otpTypeHOTP {
 		urlParams = append(urlParams, fmt.Sprintf("counter=%d", initialCount))
 	}
 	label := url.QueryEscape(accountName)
