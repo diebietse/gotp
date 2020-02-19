@@ -1,5 +1,5 @@
 test:
-	go test ./... -cover -race -mod=vendor -v
+	go test -mod=vendor -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 .PHONY: test
 
 vendor:

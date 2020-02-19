@@ -3,5 +3,8 @@
   "go.formatTool": "gofmt",
   "go.formatFlags": ["-l -s -w"],
   "go.lintTool": "golangci-lint",
-  "go.testFlags": ["-v", "-cover", "-race"]
+  "go.testFlags": ["-v", "-cover", "-race"],
+  "files.eol": "\n",
+  "editor.wordWrapColumn": 120,
+  "prettier.printWidth": 120
 }
