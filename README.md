@@ -1,8 +1,9 @@
 # GOTP - The Golang One-Time Password Library
 
-[![build-status][build-status]][build-status] ![MIT License][license-badge]
-[![codecov](https://codecov.io/gh/diebietse/gotp/branch/master/graph/badge.svg)](https://codecov.io/gh/diebietse/gotp)
-[![go.dev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white")](https://pkg.go.dev/github.com/diebietse/gotp/v2)
+[![build-status][build-status]][build-status] 
+![mit-license][license-badge]
+[![codecov][codecov-badge]][codecov-link]
+[![go.dev][godoc-badge]][godoc-link]
 
 GOTP is a Golang package for generating and verifying one-time passwords. It can be used to implement two-factor (2FA) or multi-factor (MFA) authentication methods in anywhere that requires users to log in.
 
@@ -120,7 +121,11 @@ func main() {
 
 GOTP is licensed under the [MIT License][license]
 
-[build-status]: https://travis-ci.org/diebietse/gotp.svg?branch=master
+[build-status]: https://github.com/diebietse/gotp/workflows/build/badge.svg?branch=master
+[codecov-badge]: https://codecov.io/gh/diebietse/gotp/branch/master/graph/badge.svg
+[codecov-link]: https://codecov.io/gh/diebietse/gotp
+[godoc-badge]: https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white
+[godoc-link]: https://pkg.go.dev/github.com/diebietse/gotp/v2
 [license-badge]: https://img.shields.io/badge/license-MIT-000000.svg
 [rfc-4226]: https://tools.ietf.org/html/rfc4226 "RFC 4226"
 [rfc-6238]: https://tools.ietf.org/html/rfc6238 "RFC 6238"
