@@ -1,15 +1,19 @@
 # GOTP - The Golang One-Time Password Library
 
-[![build-status][build-status]][build-status] 
-![mit-license][license-badge]
+[![build-status][build-badge]][build-link]
+[![go-report-card][goreportcard-badge]][goreportcard-link]
 [![codecov][codecov-badge]][codecov-link]
 [![go.dev][godoc-badge]][godoc-link]
+[![release][release-badge]][release-link]
+[![mit-license][license-badge]][license-link]
 
 GOTP is a Golang package for generating and verifying one-time passwords. It can be used to implement two-factor (2FA) or multi-factor (MFA) authentication methods in anywhere that requires users to log in.
 
 Open MFA standards are defined in [RFC 4226][rfc-4226] (HOTP: An HMAC-Based One-Time Password Algorithm) and in [RFC 6238][rfc-6238] (TOTP: Time-Based One-Time Password Algorithm). GOTP implements server-side support for both of these standards.
 
 This is a fork of [xlzd/gotp]
+
+![gotp-gopher][gopher]
 
 ## Installation
 
@@ -119,16 +123,22 @@ func main() {
 
 ## License
 
-GOTP is licensed under the [MIT License][license]
+GOTP is licensed under the [MIT License][license-link]
 
-[build-status]: https://github.com/diebietse/gotp/workflows/build/badge.svg?branch=master
+[build-badge]: https://github.com/diebietse/gotp/workflows/build/badge.svg?branch=master
+[build-link]: https://github.com/diebietse/gotp/actions?query=workflow%3Abuild+branch%3Amaster
 [codecov-badge]: https://codecov.io/gh/diebietse/gotp/branch/master/graph/badge.svg
 [codecov-link]: https://codecov.io/gh/diebietse/gotp
 [godoc-badge]: https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white
 [godoc-link]: https://pkg.go.dev/github.com/diebietse/gotp/v2
+[goreportcard-badge]: https://goreportcard.com/badge/github.com/diebietse/gotp
+[goreportcard-link]: https://goreportcard.com/report/github.com/diebietse/gotp
 [license-badge]: https://img.shields.io/badge/license-MIT-000000.svg
+[license-link]: https://github.com/diebietse/gotp/blob/master/LICENSE
+[release-badge]: https://img.shields.io/github/v/release/diebietse/gotp
+[release-link]: https://github.com/diebietse/gotp/releases
 [rfc-4226]: https://tools.ietf.org/html/rfc4226 "RFC 4226"
 [rfc-6238]: https://tools.ietf.org/html/rfc6238 "RFC 6238"
 [py-otp]: https://github.com/pyotp/pyotp
-[license]: https://github.com/diebietse/gotp/blob/master/LICENSE
 [xlzd/gotp]: https://github.com/xlzd/gotp
+[gopher]: https://i.imgur.com/aN6QYup.png
