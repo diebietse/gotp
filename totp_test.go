@@ -55,8 +55,8 @@ func TestTOTP_Verify(t *testing.T) {
 
 func TestTOTP_ProvisioningUri(t *testing.T) {
 	totp := getDefaultTOTP(t)
-	expect := "otpauth://totp/github:xlzd?secret=4S62BZNFXXSZLCRO&issuer=github"
-	uri, err := totp.ProvisioningURI("xlzd", "github")
+	expect := "otpauth://totp/github:diebietse?secret=4S62BZNFXXSZLCRO&issuer=github"
+	uri, err := totp.ProvisioningURI("diebietse", "github")
 	assert.NoError(t, err, "URI generation failed")
 	assert.Equal(t, expect, uri)
 }

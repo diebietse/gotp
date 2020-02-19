@@ -6,8 +6,6 @@ It can be used to implement two-factor (2FA) or multi-factor (MFA) authenticatio
 Open MFA standards are defined in RFC 4226 (HOTP: An HMAC-Based One-Time Password Algorithm)
 and in RFC 6238 (TOTP: Time-Based One-Time Password Algorithm). GOTP implements server-side support for both of these standards.
 
-GOTP was inspired by PyOTP.
-
-This fork provides a cleaner API and the functionality to produce OTPs with a hexadecimal output format.
+This is a fork of xlzd/gotp
 */
 package gotp

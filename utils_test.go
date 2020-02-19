@@ -8,15 +8,15 @@ import (
 )
 
 const (
-	testValidURI     = "otpauth://totp/SomeOrg:xlzd?secret=4S62BZNFXXSZLCRO&issuer=SomeOrg"
-	testValidURILong = "otpauth://hotp/SomeOrg:xlzd?secret=4S62BZNFXXSZLCRO&counter=0&issuer=SomeOrg&algorithm=SHA256&digits=8&period=15"
+	testValidURI     = "otpauth://totp/SomeOrg:diebietse?secret=4S62BZNFXXSZLCRO&issuer=SomeOrg"
+	testValidURILong = "otpauth://hotp/SomeOrg:diebietse?secret=4S62BZNFXXSZLCRO&counter=0&issuer=SomeOrg&algorithm=SHA256&digits=8&period=15"
 )
 
 func TestBuildUri(t *testing.T) {
 	uri, err := buildURI(
 		"totp",
 		"4S62BZNFXXSZLCRO",
-		"xlzd",
+		"diebietse",
 		"SomeOrg",
 		"sha1",
 		0,
@@ -31,7 +31,7 @@ func TestBuildUri_nonDefaults(t *testing.T) {
 	uri, err := buildURI(
 		"hotp",
 		"4S62BZNFXXSZLCRO",
-		"xlzd",
+		"diebietse",
 		"SomeOrg",
 		"sha256",
 		0,
@@ -46,7 +46,7 @@ func TestBuildUri_fail(t *testing.T) {
 	_, err := buildURI(
 		"potp",
 		"4S62BZNFXXSZLCRO",
-		"xlzd",
+		"diebietse",
 		"SomeOrg",
 		"sha1",
 		0,
