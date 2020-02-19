@@ -2,14 +2,13 @@
 
 [![build-status][build-status]][build-status] ![MIT License][license-badge]
 [![codecov](https://codecov.io/gh/diebietse/gotp/branch/master/graph/badge.svg)](https://codecov.io/gh/diebietse/gotp)
+[![go.dev](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white")](https://pkg.go.dev/github.com/diebietse/gotp/v2)
 
 GOTP is a Golang package for generating and verifying one-time passwords. It can be used to implement two-factor (2FA) or multi-factor (MFA) authentication methods in anywhere that requires users to log in.
 
 Open MFA standards are defined in [RFC 4226][rfc-4226] (HOTP: An HMAC-Based One-Time Password Algorithm) and in [RFC 6238][rfc-6238] (TOTP: Time-Based One-Time Password Algorithm). GOTP implements server-side support for both of these standards.
 
-GOTP was inspired by [PyOTP][py-otp].
-
-This fork provides the functionality to produce OTPs with a hexadecimal output format.
+This is a fork of [xlzd/gotp]
 
 ## Installation
 
@@ -19,7 +18,7 @@ go get github.com/diebietse/gotp/v2
 
 ## Usage
 
-Check API docs at <https://godoc.org/github.com/diebietse/gotp>
+Check API docs at <https://pkg.go.dev/github.com/diebietse/gotp/v2>
 
 ### Time-based OTPs
 
@@ -127,3 +126,4 @@ GOTP is licensed under the [MIT License][license]
 [rfc-6238]: https://tools.ietf.org/html/rfc6238 "RFC 6238"
 [py-otp]: https://github.com/pyotp/pyotp
 [license]: https://github.com/diebietse/gotp/blob/master/LICENSE
+[xlzd/gotp]: https://github.com/xlzd/gotp
