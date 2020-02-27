@@ -3,6 +3,7 @@ package gotp
 import (
 	"crypto/hmac"
 	"crypto/sha1"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"hash"
@@ -130,21 +131,26 @@ func newOTP(secret []byte, opt ...OTPOption) (*otp, error) {
 	return o, nil
 }
 
+// generateOTP according to https://tools.ietf.org/html/rfc4226#section-5
+// HOTP(K,C) = Truncate(HMAC(K,C))
 func (o *otp) generateOTP(movingFactor int) (string, error) {
+	// Step 1: Generate an HMAC value
 	hasher := hmac.New(o.hasher.Digest, o.secret)
 	if _, err := hasher.Write(itob(movingFactor)); err != nil {
 		return "", err
 	}
-
 	hmacHash := hasher.Sum(nil)
 
+	// Step 2: Generate 4-bytes (Dynamic Truncation)
+	// Step 3: Compute an HOTP value
+	// Calculate the byte array offset from the last 4 bits in the hash (0 <= offset <= 15) and then convert the
+	// four bytes after the offset to a 31-bit, unsigned, big-endian integer (the first byte is masked with a 0x7f)
 	offset := int(hmacHash[len(hmacHash)-1] & 0xf)
-	code := ((int(hmacHash[offset]) & 0x7f) << 24) |
-		((int(hmacHash[offset+1] & 0xff)) << 16) |
-		((int(hmacHash[offset+2] & 0xff)) << 8) |
-		(int(hmacHash[offset+3]) & 0xff)
+	code := int(binary.BigEndian.Uint32(hmacHash[offset:]) & 0x7f_ff_ff_ff)
 
+	// Calculate the remainder to get an integer of the correct length
 	code = o.formatter.calculateRemainder(code, o.length)
 
+	// Format the integer as a string
 	return fmt.Sprintf(o.formatString, code), nil
 }
